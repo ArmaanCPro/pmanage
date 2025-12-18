@@ -1,0 +1,11 @@
+build/
+cache/
+bin/
+
+.vscode/
+.vs/
+.idea/
+.cache/
+
+*/.DS_STORE
+
