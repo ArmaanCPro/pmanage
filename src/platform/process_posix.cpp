@@ -1,9 +1,7 @@
 module;
 
 #if !defined(_WIN32)
-#include <cerrno>
-#include <cstdlib>
-#include <cstring>
+
 #include <dirent.h>
 #include <signal.h>
 #include <sys/types.h>
@@ -12,6 +10,10 @@ module;
 #else
 #pragma warning "Compiling process_posix.cpp on non-POSIX platform is not allowed!"
 #endif
+
+#include <cerrno>
+#include <cstdlib>
+#include <cstring>
 
 #include <expected>
 #include <format>
@@ -49,9 +51,9 @@ struct posix_process : public process
         return {};
     }
 
-    [[nodiscard]] virtual pid_t pid() const noexcept override
+    [[nodiscard]] virtual Pid_T pid() const noexcept override
     {
-        return m_Pid;
+        return static_cast<Pid_T>(m_Pid);
     }
 
   private:
@@ -60,7 +62,7 @@ struct posix_process : public process
 
 namespace
 {
-[[nodiscard]] std::expected<pid_t, std::string> get_pid_by_name(const char *process_name) noexcept
+[[nodiscard]] std::expected<Pid_T, std::string> get_pid_by_name(const char *process_name) noexcept
 {
     char buf[512];
     // Use pidof to find the PID. The -s flag ensures only one PID is returned if multiple match.
@@ -75,9 +77,9 @@ namespace
     }
 
     // Read the output (PID string)
-    if (fgets(buf, sizeof(buf), cmd_pipe) != NULL)
+    if (fgets(buf, sizeof(buf), cmd_pipe))
     {
-        pid_t pid = static_cast<pid_t>(strtoul(buf, NULL, 10));
+        pid_t pid = strtoul(buf, nullptr, 10);
         pclose(cmd_pipe);
         return pid;
     }
@@ -87,9 +89,9 @@ namespace
 }
 } // namespace
 
-[[nodiscard]] std::expected<std::unique_ptr<process>, std::string> process::find_by_pid(pid_t pid) noexcept
+[[nodiscard]] std::expected<std::unique_ptr<process>, std::string> process::find_by_pid(Pid_T pid) noexcept
 {
-    return std::make_unique<posix_process>(pid);
+    return std::make_unique<posix_process>(static_cast<pid_t>(pid));
 }
 
 [[nodiscard]] std::expected<std::unique_ptr<process>, std::string> process::find_by_name(const std::string &name) noexcept

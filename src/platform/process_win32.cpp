@@ -46,7 +46,10 @@ struct win32_process : public process
         return {};
     }
 
-    [[nodiscard]] virtual pid_t pid() const noexcept override { return static_cast<pid_t>(m_Pid); }
+    [[nodiscard]] virtual Pid_T pid() const noexcept override
+    {
+        return static_cast<Pid_T>(m_Pid);
+    }
 
 private:
    DWORD m_Pid;
@@ -82,7 +85,7 @@ private:
     return std::make_unique<win32_process>(pid);
 }
 
-[[nodiscard]] std::expected<std::unique_ptr<process>, std::string> process::find_by_pid(pid_t pid) noexcept
+[[nodiscard]] std::expected<std::unique_ptr<process>, std::string> process::find_by_pid(Pid_T pid) noexcept
 {
     return std::make_unique<win32_process>(static_cast<DWORD>(pid));
 }
