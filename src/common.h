@@ -1,7 +1,7 @@
 #pragma once
 
-#ifdef _WIN32
-    #ifdef PMANAGE_EXPORTS
+#if defined(_WIN32)
+    #if defined(PMANAGE_EXPORTS)
         #define PMANAGE_API __declspec(dllexport)
     #else
         #define PMANAGE_API __declspec(dllimport)

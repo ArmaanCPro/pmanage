@@ -1,6 +1,6 @@
 module;
 
-#ifndef _WIN32
+#if !defined(_WIN32)
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
@@ -9,12 +9,15 @@ module;
 #include <sys/types.h>
 #include <unistd.h>
 
+#else
+#pragma warning "Compiling process_posix.cpp on non-POSIX platform is not allowed!"
+#endif
+
 #include <expected>
 #include <format>
 #include <iostream>
 #include <memory>
 #include <string>
-#endif
 
 module pmanage;
 

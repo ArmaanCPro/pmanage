@@ -13,7 +13,7 @@ function(enable_sanitizers target)
         # MSVC ASAN is only supported on newer versions and x64
         if (ENABLE_ASAN)
             target_compile_options(${target} PRIVATE /fsanitize=address)
-            target_link_options(${target} PRIVATE /fsanitize=address)
+            target_link_options(${target} PRIVATE /INFERASANLIBS)
         endif()
         return()
     endif()
@@ -37,6 +37,7 @@ function(enable_sanitizers target)
             -fno-omit-frame-pointer
             -g
         )
+
         target_link_options(${target} PRIVATE
             -fsanitize=${sanitize_list}
         )
