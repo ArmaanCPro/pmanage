@@ -8,7 +8,14 @@ module;
 #include <unistd.h>
 
 #else
-#pragma warning "Compiling process_posix.cpp on non-POSIX platform is not allowed!"
+
+#if defined(_MSC_VER)
+    #pragma message("Compiling process_posix.cpp on non-POSIX platform is not allowed!)
+#else
+    #warning "Compiling process_win32.cpp not allowed on non-windows platforms is not allowed!"
+#warning "Compiling process_posix.cpp on non-POSIX platform is not allowed!"
+#endif
+
 #endif
 
 #include <cerrno>
@@ -17,7 +24,6 @@ module;
 
 #include <expected>
 #include <format>
-#include <iostream>
 #include <memory>
 #include <string>
 
@@ -65,10 +71,16 @@ namespace
 [[nodiscard]] std::expected<Pid_T, std::string> get_pid_by_name(const char *process_name) noexcept
 {
     char buf[512];
-    // Use pidof to find the PID. The -s flag ensures only one PID is returned if multiple match.
-    // Replace 'pidof -s' with 'pgrep -o' to use pgrep and get the oldest process's PID.
     char command[256];
+
+#ifdef __linux__
+    // Use pidof to find the PID. The -s flag ensures only one PID is returned if multiple match.
     snprintf(command, sizeof(command), "pidof -s %s", process_name);
+#else
+    // Replace 'pidof -s' with 'pgrep -o' to use pgrep and get the oldest process's PID.
+    // More portable across MacOS/BSD
+    snprintf(command, sizeof(command), "pgrep -o %s", process_name);
+#endif
 
     FILE *cmd_pipe = popen(command, "r");
     if (!cmd_pipe)
@@ -79,7 +91,7 @@ namespace
     // Read the output (PID string)
     if (fgets(buf, sizeof(buf), cmd_pipe))
     {
-        pid_t pid = strtoul(buf, nullptr, 10);
+        auto pid = static_cast<pid_t>(strtoul(buf, nullptr, 10));
         pclose(cmd_pipe);
         return pid;
     }

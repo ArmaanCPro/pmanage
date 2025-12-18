@@ -7,7 +7,12 @@ module;
 #include <tchar.h>
 
 #else
-#pragma warning "Compiling process_win32.cpp not allowed on non-windows platforms is not allowed!"
+#if defined(_MSC_VER)
+#pragma message("Compiling process_win32.cpp not allowed on non-windows platforms is not allowed!")
+#else
+#warning "Compiling process_win32.cpp not allowed on non-windows platforms is not allowed!"
+#endif
+
 #endif
 
 #include <expected>
