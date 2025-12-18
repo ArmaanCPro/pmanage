@@ -22,12 +22,14 @@ target_link_libraries(pmanageTests
     PRIVATE pmanage::common pmanage::pmanage GTest::gtest_main GTest::gtest
 )
 
-add_custom_command(TARGET pmanageTests POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_RUNTIME_DLLS:pmanageTests>
-        $<TARGET_FILE_DIR:pmanageTests>
-        COMMAND_EXPAND_LISTS
-)
+if (WIN32)
+    add_custom_command(TARGET pmanageTests POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:pmanageTests>
+            $<TARGET_FILE_DIR:pmanageTests>
+            COMMAND_EXPAND_LISTS
+    )
+endif()
 
 include(GoogleTest)
 gtest_discover_tests(pmanageTests)
