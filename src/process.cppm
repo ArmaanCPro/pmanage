@@ -10,15 +10,18 @@ export module pmanage;
 
 export namespace pmng
 {
+
 using pid_t = int;
+
 struct PMANAGE_API process
 {
     virtual ~process() = default;
 
-    static std::expected<std::unique_ptr<process>, std::string> find_by_pid(pid_t pid);
-    static std::expected<std::unique_ptr<process>, std::string> find_by_name(const std::string &name);
+    [[nodiscard]] static std::expected<std::unique_ptr<process>, std::string> find_by_pid(pid_t pid) noexcept;
+    [[nodiscard]] static std::expected<std::unique_ptr<process>, std::string> find_by_name(const std::string &name) noexcept;
 
-    virtual std::expected<void, std::string> kill() = 0;
-    virtual pid_t pid() const = 0;
+    virtual std::expected<void, std::string> kill() noexcept = 0;
+    [[nodiscard]] virtual pid_t pid() const noexcept = 0;
 };
+
 } // namespace pmng

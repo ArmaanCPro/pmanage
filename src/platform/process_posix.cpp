@@ -26,7 +26,7 @@ struct posix_process : public process
     {
     }
 
-    virtual std::expected<void, std::string> kill() override
+    [[nodiscard]] virtual std::expected<void, std::string> kill() noexcept override
     {
         if (::kill(m_Pid, SIGTERM) == -1)
         {
@@ -46,7 +46,7 @@ struct posix_process : public process
         return {};
     }
 
-    virtual pid_t pid() const override
+    [[nodiscard]] virtual pid_t pid() const noexcept override
     {
         return m_Pid;
     }
@@ -57,7 +57,7 @@ struct posix_process : public process
 
 namespace
 {
-std::expected<pid_t, std::string> get_pid_by_name(const char *process_name)
+[[nodiscard]] std::expected<pid_t, std::string> get_pid_by_name(const char *process_name) noexcept
 {
     char buf[512];
     // Use pidof to find the PID. The -s flag ensures only one PID is returned if multiple match.
@@ -84,12 +84,12 @@ std::expected<pid_t, std::string> get_pid_by_name(const char *process_name)
 }
 } // namespace
 
-std::expected<std::unique_ptr<process>, std::string> process::find_by_pid(pid_t pid)
+[[nodiscard]] std::expected<std::unique_ptr<process>, std::string> process::find_by_pid(pid_t pid) noexcept
 {
     return std::make_unique<posix_process>(pid);
 }
 
-std::expected<std::unique_ptr<process>, std::string> process::find_by_name(const std::string &name)
+[[nodiscard]] std::expected<std::unique_ptr<process>, std::string> process::find_by_name(const std::string &name) noexcept
 {
     auto found_pid = get_pid_by_name(name.c_str());
 
@@ -97,4 +97,6 @@ std::expected<std::unique_ptr<process>, std::string> process::find_by_name(const
         return std::make_unique<posix_process>(found_pid.value());
     return std::unexpected{found_pid.error()};
 }
+
 } // namespace pmng
+
