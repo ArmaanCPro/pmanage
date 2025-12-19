@@ -106,8 +106,13 @@ namespace
     return std::make_unique<posix_process>(static_cast<pid_t>(pid));
 }
 
-[[nodiscard]] std::expected<std::unique_ptr<process>, std::string> process::find_by_name(const std::string &name) noexcept
+[[nodiscard]] std::expected<std::unique_ptr<process>, std::string> process::find_by_name(std::string name) noexcept
 {
+    if (name.ends_with(".exe"))
+    {
+        name.resize(name.length() - 4);
+    }
+
     auto found_pid = get_pid_by_name(name.c_str());
 
     if (found_pid.has_value())

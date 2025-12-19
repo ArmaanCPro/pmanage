@@ -60,8 +60,43 @@ private:
    DWORD m_Pid;
 };
 
-[[nodiscard]] std::expected<std::unique_ptr<process>, std::string> process::find_by_name(const std::string &name) noexcept
+namespace
 {
+    DWORD get_parent_pid(DWORD current_pid)
+    {
+        DWORD ppid = 0;
+        HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+
+        if (hSnapshot != INVALID_HANDLE_VALUE)
+        {
+            PROCESSENTRY32 pe;
+            pe.dwSize = sizeof(PROCESSENTRY32);
+
+            if (Process32First(hSnapshot, &pe))
+            {
+                do
+                {
+                    if (pe.th32ProcessID == current_pid)
+                    {
+                        ppid = pe.th32ParentProcessID;
+                        break;
+                    }
+                } while (Process32Next(hSnapshot, &pe));
+            }
+            CloseHandle(hSnapshot);
+        }
+
+        return ppid;
+    }
+} // namespace
+
+[[nodiscard]] std::expected<std::unique_ptr<process>, std::string> process::find_by_name(std::string name) noexcept
+{
+    if (!name.ends_with(".exe"))
+    {
+        name += ".exe";
+    }
+
     DWORD pid = 0;
     // takes a snapshot of all processes
     HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -93,6 +128,16 @@ private:
 [[nodiscard]] std::expected<std::unique_ptr<process>, std::string> process::find_by_pid(Pid_T pid) noexcept
 {
     return std::make_unique<win32_process>(static_cast<DWORD>(pid));
+}
+
+[[nodiscard]] Pid_T process::current_pid() noexcept
+{
+    return static_cast<Pid_T>(GetCurrentProcessId());
+}
+
+[[nodiscard]] Pid_T process::parent_pid() noexcept
+{
+    return static_cast<Pid_T>(get_parent_pid(GetCurrentProcessId()));
 }
 
 } // namespace pmng

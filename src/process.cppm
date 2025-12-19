@@ -26,7 +26,7 @@ struct PMANAGE_API process
     virtual ~process() = default;
 
     [[nodiscard]] static std::expected<std::unique_ptr<process>, std::string> find_by_pid(Pid_T pid) noexcept;
-    [[nodiscard]] static std::expected<std::unique_ptr<process>, std::string> find_by_name(const std::string &name) noexcept;
+    [[nodiscard]] static std::expected<std::unique_ptr<process>, std::string> find_by_name(std::string name) noexcept;
     [[nodiscard]] static Pid_T current_pid() noexcept;
     [[nodiscard]] static Pid_T parent_pid() noexcept;
 
