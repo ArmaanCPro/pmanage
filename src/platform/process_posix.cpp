@@ -91,7 +91,7 @@ namespace
     // Read the output (PID string)
     if (fgets(buf, sizeof(buf), cmd_pipe))
     {
-        auto pid = static_cast<pid_t>(strtoul(buf, nullptr, 10));
+        auto pid = static_cast<Pid_T>(strtoul(buf, nullptr, 10));
         pclose(cmd_pipe);
         return pid;
     }
@@ -113,6 +113,16 @@ namespace
     if (found_pid.has_value())
         return std::make_unique<posix_process>(found_pid.value());
     return std::unexpected{found_pid.error()};
+}
+
+[[nodiscard]] Pid_T process::current_pid() noexcept
+{
+    return static_cast<Pid_T>(getpid());
+}
+
+[[nodiscard]] Pid_T process::parent_pid() noexcept
+{
+    return static_cast<Pid_T>(getppid());
 }
 
 } // namespace pmng
